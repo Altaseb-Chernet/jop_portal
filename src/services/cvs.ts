@@ -36,6 +36,11 @@ export async function getCv(id: number): Promise<Cv> {
   return data
 }
 
+export async function getDefaultCv(): Promise<Cv> {
+  const { data } = await api.get<Cv>('/api/cvs/default')
+  return data
+}
+
 export async function buildCv(payload: Partial<Cv>): Promise<Cv> {
   const { data } = await api.post<Cv>('/api/cvs/build', payload)
   return data

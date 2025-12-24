@@ -14,6 +14,9 @@ import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { SubscriptionPage } from './pages/SubscriptionPage'
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
 import { HomePage } from './pages/HomePage'
+import { AboutPage } from './pages/AboutPage'
+import { PricingPage } from './pages/PricingPage'
+import { ContactPage } from './pages/ContactPage'
 import { JobAlertsPage } from './pages/JobAlertsPage'
 import { JobDetailsPage } from './pages/JobDetailsPage'
 import { JobsPage } from './pages/JobsPage'
@@ -29,6 +32,9 @@ export default function App() {
       <Route element={<Layout />}>
         {/* Public Pages (will show footer) */}
         <Route index element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/jobs/:id" element={<JobDetailsPage />} />
         <Route path="/login" element={<LoginPage />} />

@@ -28,7 +28,7 @@ export function PaymentSuccessPage() {
       
       if (payment.status === 'SUCCESSFUL') {
         setPaymentStatus('success')
-        setToast({ type: 'success', message: 'Payment successful! Your subscription is now active.' })
+        setToast({ type: 'success', message: 'Payment successful! Waiting for admin approval.' })
       } else if (payment.status === 'FAILED') {
         setPaymentStatus('failed')
         setToast({ type: 'error', message: 'Payment failed. Please try again.' })
@@ -71,20 +71,14 @@ export function PaymentSuccessPage() {
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
               <p className="text-gray-600 mb-6">
-                Your subscription is now active. You can start posting jobs and accessing premium features.
+                Your payment was received. Your employer account is pending admin approval.
               </p>
               <div className="space-y-3">
                 <button
                   className="btn btn-primary w-full"
-                  onClick={() => navigate('/dashboard')}
+                  onClick={() => navigate('/login')}
                 >
-                  Go to Dashboard
-                </button>
-                <button
-                  className="btn btn-secondary w-full"
-                  onClick={() => navigate('/employer/jobs')}
-                >
-                  Post a Job
+                  Go to Login
                 </button>
               </div>
             </>

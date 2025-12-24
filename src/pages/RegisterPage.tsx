@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { register as registerApi } from '../services/auth'
+import { initializeEmployerPayment } from '../services/payment'
 import { useAuth } from '../context/AuthContext'
 import { Toast } from '../components/Toast'
 import type { UserRole } from '../types/auth'
@@ -23,6 +24,7 @@ type FormValues = z.infer<typeof schema>
 
 export function RegisterPage() {
   const nav = useNavigate()
+  const [searchParams] = useSearchParams()
   const { signIn } = useAuth()
   const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null)
 
@@ -38,6 +40,8 @@ export function RegisterPage() {
 
   const role = watch('role') as UserRole | undefined
 
+  const selectedPlan = (searchParams.get('plan') || 'MONTHLY') as 'MONTHLY' | 'QUARTERLY' | 'YEARLY'
+
   async function onSubmit(values: FormValues) {
     try {
       const res = await registerApi({
@@ -50,10 +54,25 @@ export function RegisterPage() {
         companyName: values.companyName,
         companyIndustry: values.companyIndustry,
       })
+
+      if (values.role === 'EMPLOYER') {
+        setToast({ type: 'info', message: 'Account created. Redirecting to payment...' })
+        const paymentResponse = await initializeEmployerPayment({
+          email: values.email,
+          subscriptionType: selectedPlan,
+        })
+        if (paymentResponse.chapaCheckoutUrl) {
+          window.location.href = paymentResponse.chapaCheckoutUrl
+          return
+        }
+        setToast({ type: 'error', message: 'Payment initialization failed' })
+        return
+      }
+
       signIn(res)
       setToast({ type: 'success', message: 'Account created successfully!' })
-      nav('/dashboard')
-    } catch (e: any) {
+      nav('/dashboard', { replace: true })
+    } catch (e: any) {  
       const msg = e?.response?.data?.error || 'Registration failed'
       setToast({ type: 'error', message: msg })
     }

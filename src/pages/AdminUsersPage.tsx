@@ -51,6 +51,7 @@ export function AdminUsersPage() {
                 <th className="py-3 pr-4">Name</th>
                 <th className="py-3 pr-4">Email</th>
                 <th className="py-3 pr-4">Role</th>
+                <th className="py-3 pr-4">Paid</th>
                 <th className="py-3 pr-4">Active</th>
                 <th className="py-3 pr-4">Approved</th>
                 <th className="py-3 pr-4">Actions</th>
@@ -65,11 +66,12 @@ export function AdminUsersPage() {
                   </td>
                   <td className="py-3 pr-4">{u.email}</td>
                   <td className="py-3 pr-4">{String(u.role)}</td>
+                  <td className="py-3 pr-4">{String(u.hasSuccessfulPayment ?? false)}</td>
                   <td className="py-3 pr-4">{String(u.isActive)}</td>
                   <td className="py-3 pr-4">{String(u.isApproved)}</td>
                   <td className="py-3 pr-4">
                     <div className="flex flex-wrap gap-2">
-                      {u.role === 'EMPLOYER' && u.isApproved === false && (
+                      {u.role === 'EMPLOYER' && u.isApproved === false && u.hasSuccessfulPayment === true && (
                         <button className="btn btn-primary" disabled={approve.isPending} onClick={() => approve.mutate(u.id)}>
                           Approve
                         </button>

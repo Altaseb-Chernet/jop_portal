@@ -57,8 +57,10 @@ export function AdminPaymentPage() {
     try {
       setLoading(true)
       const endpoint = activeTab === 'pending' ? '/api/admin/payments/pending' : '/api/admin/payments/all'
-      const { data } = await api.get<Payment[]>(endpoint)
-      setPayments(data.content || data)
+      const { data } = await api.get(endpoint)
+      const anyData = data as any
+      const list: Payment[] = Array.isArray(anyData) ? anyData : Array.isArray(anyData?.content) ? anyData.content : []
+      setPayments(list)
     } catch (error) {
       setToast({ type: 'error', message: 'Failed to load payments' })
     } finally {

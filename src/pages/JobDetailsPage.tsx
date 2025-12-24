@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getJob } from '../services/jobs'
 import { applyForJob } from '../services/applications'
+import { getDefaultCv } from '../services/cvs'
 import { Spinner } from '../components/Spinner'
 import { Toast } from '../components/Toast'
 import { useAuth } from '../context/AuthContext'
@@ -52,6 +53,20 @@ export function JobDetailsPage() {
   const canApply = useMemo(() => {
     return isAuthenticated && user?.role === 'JOB_SEEKER'
   }, [isAuthenticated, user?.role])
+
+  const defaultCvQ = useQuery({
+    queryKey: ['default-cv'],
+    queryFn: getDefaultCv,
+    enabled: canApply,
+    retry: false,
+  })
+
+  const hasValidDefaultPdfCv = useMemo(() => {
+    if (!canApply) return false
+    if (!defaultCvQ.data) return false
+    const name = (defaultCvQ.data.originalFileName || defaultCvQ.data.fileName || '').toLowerCase()
+    return Boolean(defaultCvQ.data.isUploadedCv) && Boolean(defaultCvQ.data.isActive) && Boolean(defaultCvQ.data.isDefault) && name.endsWith('.pdf')
+  }, [canApply, defaultCvQ.data])
 
   const applyMut = useMutation({
     mutationFn: () => applyForJob({ jobId, coverLetter: coverLetter.trim() || undefined }),
@@ -182,11 +197,22 @@ export function JobDetailsPage() {
 
                   <button
                     className="btn btn-primary w-full mt-3"
-                    disabled={applyMut.isPending}
+                    disabled={applyMut.isPending || !hasValidDefaultPdfCv}
                     onClick={() => applyMut.mutate()}
                   >
                     {applyMut.isPending ? 'Applying…' : 'Apply now'}
                   </button>
+
+                  {!hasValidDefaultPdfCv && (
+                    <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                      Default CV (PDF) is required to apply.
+                      <div className="mt-2">
+                        <Link className="font-medium underline" to="/jobseeker/cvs">
+                          Upload a PDF CV and set it as default
+                        </Link>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

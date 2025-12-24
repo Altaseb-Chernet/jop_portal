@@ -26,6 +26,7 @@ export type AdminUser = User & {
   updatedAt?: string
   companyDescription?: string
   companyWebsite?: string
+  hasSuccessfulPayment?: boolean
 }
 
 export async function adminGetUsers(): Promise<AdminUser[]> {

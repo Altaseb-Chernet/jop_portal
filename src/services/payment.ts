@@ -16,6 +16,11 @@ export interface PaymentInitRequest {
   subscriptionType: 'MONTHLY' | 'QUARTERLY' | 'YEARLY'
 }
 
+export interface EmployerPaymentInitRequest {
+  email: string
+  subscriptionType: 'MONTHLY' | 'QUARTERLY' | 'YEARLY'
+}
+
 export interface PaymentResponse {
   id: number
   transactionId: string
@@ -38,6 +43,11 @@ export async function getSubscriptionPlans(): Promise<Record<string, Subscriptio
 
 export async function initializePayment(request: PaymentInitRequest): Promise<PaymentResponse> {
   const { data } = await api.post<PaymentResponse>('/api/payment/initialize', request)
+  return data
+}
+
+export async function initializeEmployerPayment(request: EmployerPaymentInitRequest): Promise<PaymentResponse> {
+  const { data } = await api.post<PaymentResponse>('/api/payment/initialize-employer', request)
   return data
 }
 

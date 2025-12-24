@@ -1,7 +1,5 @@
 import { NavLink } from 'react-router-dom'
 import type React from 'react'
-// Add ChevronLeft and ChevronRight to your existing imports
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   BriefcaseIcon,
   BuildingOffice2Icon,
@@ -11,7 +9,6 @@ import {
   BellAlertIcon,
   UserCircleIcon,
   UsersIcon,
-  ArrowLeftOnRectangleIcon,
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
 } from '@heroicons/react/24/outline'
@@ -41,7 +38,7 @@ const navItems: NavItem[] = [
 ]
 
 export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
-  const { user, isAuthenticated, signOut } = useAuth()
+  const { user, isAuthenticated } = useAuth()
 
   const role = user?.role
 

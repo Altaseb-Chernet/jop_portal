@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Spinner } from '../components/Spinner'
 import { Toast } from '../components/Toast'
-import { getApplicationsByJob, getEmployerApplications, updateApplicationStatus } from '../services/applications'
+import { downloadApplicationCv, getApplicationsByJob, getEmployerApplications, updateApplicationStatus } from '../services/applications'
 import { getEmployerJobs } from '../services/jobs'
 import { getEmployerDashboard } from '../services/dashboard'
 import { useAuth } from '../context/AuthContext'
@@ -23,6 +23,12 @@ function toApiStatus(uiStatus: string): string {
   const raw = String(uiStatus ?? '').toUpperCase()
   if (raw === 'APPROVED') return 'SHORTLISTED'
   return raw
+}
+
+function openBlobInNewTab(blob: Blob) {
+  const url = URL.createObjectURL(blob)
+  window.open(url, '_blank', 'noopener,noreferrer')
+  setTimeout(() => URL.revokeObjectURL(url), 60_000)
 }
 
 export function EmployerApplicationsPage() {
@@ -154,6 +160,22 @@ export function EmployerApplicationsPage() {
                       <div className="text-sm text-gray-600 mt-1">{a.jobSeeker?.email}</div>
                       <div className="text-sm text-gray-500 mt-2">Current status: {String(a.status ?? '—')}</div>
                       {a.coverLetter ? <div className="mt-3 text-sm text-gray-700 whitespace-pre-line">{a.coverLetter}</div> : null}
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <button
+                          className="btn btn-secondary"
+                          onClick={async () => {
+                            try {
+                              const { blob } = await downloadApplicationCv(a.id)
+                              openBlobInNewTab(blob)
+                            } catch (e: any) {
+                              const msg = e?.response?.data?.message || e?.response?.data?.error || 'Failed to open CV'
+                              setToast({ type: 'error', message: msg })
+                            }
+                          }}
+                        >
+                          View CV
+                        </button>
+                      </div>
                     </div>
                     <div className="min-w-[180px]">
                       <label className="text-xs text-gray-500">Update status</label>

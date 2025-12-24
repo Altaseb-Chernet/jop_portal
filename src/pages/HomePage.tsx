@@ -1,15 +1,16 @@
 import { Link } from 'react-router-dom';
 import { 
-  ArrowRight, CheckCircle, Users, Briefcase, Shield, Mail, Phone, 
-  MapPin, Award, Rocket, Zap, Globe, Code, Heart, Sparkles, 
-  Target, Layers, Cpu, Database, Cloud, Lock, Linkedin, Github
+  ArrowRight, CheckCircle, Users, Briefcase, Mail, Phone, 
+  MapPin, Rocket, Zap, Globe, 
+  Layers, Cpu, Database, Cloud, Lock, Linkedin, Github,
+  ChevronLeft, ChevronRight 
 } from 'lucide-react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence, type Variants } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useState, useRef, useEffect } from 'react';
 
-// Add ChevronLeft and ChevronRight to your existing imports
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+const EASE_LINEAR: [number, number, number, number] = [0, 0, 1, 1];
+const EASE_IN_OUT: [number, number, number, number] = [0.42, 0, 0.58, 1];
 
 export function HomePage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -98,7 +99,7 @@ function FloatingParticles() {
           transition={{
             duration: Math.random() * 20 + 20,
             repeat: Infinity,
-            ease: "linear"
+            ease: EASE_LINEAR
           }}
           style={{
             width: Math.random() * 20 + 10 + 'px',
@@ -175,7 +176,7 @@ function HeroSection() {
     threshold: 0.1,
   });
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -186,7 +187,7 @@ function HeroSection() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 30, opacity: 0 },
     visible: {
       y: 0,
@@ -205,7 +206,7 @@ function HeroSection() {
     transition: {
       duration: 3,
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: EASE_IN_OUT
     }
   };
 
@@ -250,10 +251,10 @@ function HeroSection() {
               <span className="text-gray-900 dark:text-white block">
                 Revolutionize Your
               </span>
-              <motion.span 
+              <motion.span
                 initial={{ backgroundPosition: "200% center" }}
                 animate={{ backgroundPosition: "-200% center" }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 3, repeat: Infinity, ease: EASE_LINEAR }}
                 className="block bg-gradient-to-r from-primary-500 via-cyan-500 to-primary-500 bg-[length:200%_auto] bg-clip-text text-transparent"
               >
                 Hiring Ecosystem
@@ -302,7 +303,7 @@ function HeroSection() {
               >
                 <motion.div
                   animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  transition={{ duration: 20, repeat: Infinity, ease: EASE_LINEAR }}
                 >
                   <Rocket className="h-5 w-5" />
                 </motion.div>
@@ -376,7 +377,6 @@ function FeaturesSection() {
   });
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
   const directionRef = useRef(1); // Track slide direction
 
   const features = [
@@ -429,7 +429,7 @@ function FeaturesSection() {
     return () => clearInterval(interval);
   }, [features.length]);
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -440,7 +440,7 @@ function FeaturesSection() {
     }
   };
 
-  const cardVariants = {
+  const cardVariants: Variants = {
     hidden: { y: 50, opacity: 0, scale: 0.8 },
     visible: {
       y: 0,
@@ -460,7 +460,7 @@ function FeaturesSection() {
   };
 
   // Single feature slide variants
-  const slideVariants = {
+  const slideVariants: Variants = {
     enter: (direction: number) => ({
       x: direction > 0 ? 100 : -100,
       opacity: 0,
@@ -505,7 +505,7 @@ function FeaturesSection() {
         animate={{ 
           backgroundPosition: ['0% 0%', '100% 100%'],
         }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 20, repeat: Infinity, ease: EASE_LINEAR }}
         style={{
           backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
           backgroundSize: '40px 40px',
@@ -526,7 +526,7 @@ function FeaturesSection() {
           >
             <motion.div
               animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 2, repeat: Infinity, ease: EASE_LINEAR }}
             >
               <Zap className="h-4 w-4" />
             </motion.div>
@@ -541,7 +541,7 @@ function FeaturesSection() {
             <motion.span
               initial={{ backgroundPosition: "200% center" }}
               animate={{ backgroundPosition: "-200% center" }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 3, repeat: Infinity, ease: EASE_LINEAR }}
               className="bg-gradient-to-r from-primary-500 via-cyan-500 to-primary-500 bg-[length:200%_auto] bg-clip-text text-transparent"
             >
               Modern Hiring
@@ -697,6 +697,7 @@ function FeaturesSection() {
     </section>
   );
 }
+
 function StatsSection({ scrollYProgress }: { scrollYProgress: any }) {
   const [ref, inView] = useInView({
     triggerOnce: true,
@@ -713,7 +714,7 @@ function StatsSection({ scrollYProgress }: { scrollYProgress: any }) {
     { value: '30+', label: 'Successful Matches', icon: '✨' },
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -724,7 +725,7 @@ function StatsSection({ scrollYProgress }: { scrollYProgress: any }) {
     }
   };
 
-  const statVariants = {
+  const statVariants: Variants = {
     hidden: { scale: 0, opacity: 0 },
     visible: {
       scale: 1,
@@ -752,7 +753,7 @@ function StatsSection({ scrollYProgress }: { scrollYProgress: any }) {
         transition={{
           duration: 10,
           repeat: Infinity,
-          ease: "linear"
+          ease: EASE_LINEAR
         }}
         style={{
           backgroundSize: '200% 100%',
@@ -866,7 +867,7 @@ function TeamSection() {
     }
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -877,7 +878,7 @@ function TeamSection() {
     }
   };
 
-  const memberVariants = {
+  const memberVariants: Variants = {
     hidden: { 
       opacity: 0, 
       y: 30,
@@ -904,7 +905,7 @@ function TeamSection() {
         animate={{ 
           backgroundPosition: ['0% 0%', '100% 100%'],
         }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 20, repeat: Infinity, ease: EASE_LINEAR }}
         style={{
           backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
           backgroundSize: '50px 50px',
@@ -931,7 +932,7 @@ function TeamSection() {
             <motion.span
               initial={{ backgroundPosition: "200% center" }}
               animate={{ backgroundPosition: "-200% center" }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 3, repeat: Infinity, ease: EASE_LINEAR }}
               className="bg-gradient-to-r from-primary-500 via-cyan-500 to-primary-500 bg-[length:200%_auto] bg-clip-text text-transparent"
             >
               Developers
@@ -970,7 +971,7 @@ function TeamSection() {
                       scale: [1, 1.1, 1]
                     }}
                     transition={{ 
-                      rotate: { duration: 10, repeat: Infinity, ease: "linear" },
+                      rotate: { duration: 10, repeat: Infinity, ease: EASE_LINEAR },
                       scale: { duration: 2, repeat: Infinity }
                     }}
                     className="absolute inset-0 bg-gradient-to-br from-primary-400 to-cyan-400 rounded-full blur opacity-20 group-hover:opacity-30"
@@ -1067,7 +1068,7 @@ function PricingSection() {
   const plans = [
     {
       name: 'Starter',
-      price: '$29',
+      price: '1000',
       period: '/month',
       description: 'For individuals and small teams',
       features: [
@@ -1083,7 +1084,7 @@ function PricingSection() {
     },
     {
       name: 'Professional',
-      price: '$79',
+      price: '2500',
       period: '/month',
       description: 'For growing businesses',
       features: [
@@ -1120,7 +1121,7 @@ function PricingSection() {
     }
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -1131,7 +1132,7 @@ function PricingSection() {
     }
   };
 
-  const cardVariants = {
+  const cardVariants: Variants = {
     hidden: { y: 50, opacity: 0 },
     visible: {
       y: 0,
@@ -1166,7 +1167,7 @@ function PricingSection() {
             <motion.span
               initial={{ backgroundPosition: "200% center" }}
               animate={{ backgroundPosition: "-200% center" }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 3, repeat: Infinity, ease: EASE_LINEAR }}
               className="bg-gradient-to-r from-primary-500 via-cyan-500 to-primary-500 bg-[length:200%_auto] bg-clip-text text-transparent"
             >
               Pricing
@@ -1243,7 +1244,13 @@ function PricingSection() {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Link
-                    to={plan.name === 'Enterprise' ? '/contact' : '/register'}
+                    to={
+                      plan.name === 'Enterprise'
+                        ? '/contact'
+                        : plan.name === 'Starter'
+                          ? '/register?plan=MONTHLY'
+                          : '/register?plan=QUARTERLY'
+                    }
                     className={`block text-center py-3 px-6 rounded-lg font-semibold transition-all ${
                       plan.popular 
                         ? 'bg-gradient-to-r from-primary-600 to-cyan-600 text-white hover:shadow-lg' 
@@ -1310,7 +1317,7 @@ function RoleCardsSection() {
     }
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -1321,7 +1328,7 @@ function RoleCardsSection() {
     }
   };
 
-  const cardVariants = {
+  const cardVariants: Variants = {
     hidden: { 
       opacity: 0, 
       y: 30,
@@ -1352,7 +1359,7 @@ function RoleCardsSection() {
         transition={{
           duration: 20,
           repeat: Infinity,
-          ease: "linear"
+          ease: EASE_LINEAR
         }}
       />
       
@@ -1369,7 +1376,7 @@ function RoleCardsSection() {
             <motion.span
               initial={{ backgroundPosition: "200% center" }}
               animate={{ backgroundPosition: "-200% center" }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 3, repeat: Infinity, ease: EASE_LINEAR }}
               className="bg-gradient-to-r from-primary-500 via-cyan-500 to-primary-500 bg-[length:200%_auto] bg-clip-text text-transparent"
             >
               Every Role
@@ -1406,7 +1413,7 @@ function RoleCardsSection() {
                   transition={{
                     duration: 10,
                     repeat: Infinity,
-                    ease: "linear"
+                    ease: EASE_LINEAR
                   }}
                   style={{
                     background: `linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%)`,
@@ -1415,7 +1422,7 @@ function RoleCardsSection() {
                 />
                 
                 <div className="relative z-10">
-                  <div className="flex items-start justify-between mb-8">
+                  <div className="flex flex-col justify-between mb-8">
                     <motion.div 
                       animate={{ 
                         scale: [1, 1.1, 1],
@@ -1429,50 +1436,48 @@ function RoleCardsSection() {
                     >
                       {role.icon}
                     </motion.div>
-                    <div className="text-sm font-medium px-3 py-1 rounded-full bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                    
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                       {role.title}
-                    </div>
-                  </div>
-                  
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                    {role.title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-8">
-                    {role.description}
-                  </p>
-                  
-                  <ul className="space-y-3 mb-8">
-                    {role.features.map((feature, index) => (
-                      <motion.li 
-                        key={feature}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        whileHover={{ x: 5 }}
-                        className="flex items-center text-sm text-gray-600 dark:text-gray-400"
-                      >
-                        <motion.div 
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                          className="h-2 w-2 rounded-full bg-primary-500 mr-3"
-                        />
-                        {feature}
-                      </motion.li>
-                    ))}
-                  </ul>
-                  
-                  <motion.div 
-                    whileHover={{ scale: 1.05 }} 
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Link
-                      to="/register"
-                      className="inline-flex items-center justify-center w-full py-3 px-4 rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium border border-gray-200 dark:border-gray-700 transition-colors group/btn"
+                    </h3>
+                    
+                    <p className="text-gray-600 dark:text-gray-400 mb-8">
+                      {role.description}
+                    </p>
+                    
+                    <ul className="space-y-3 mb-8">
+                      {role.features.map((feature, index) => (
+                        <motion.li 
+                          key={feature}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          whileHover={{ x: 5 }}
+                          className="flex items-center text-sm text-gray-600 dark:text-gray-400"
+                        >
+                          <motion.div 
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                            className="h-2 w-2 rounded-full bg-primary-500 mr-3"
+                          />
+                          {feature}
+                        </motion.li>
+                      ))}
+                    </ul>
+                    
+                    <motion.div 
+                      whileHover={{ scale: 1.05 }} 
+                      whileTap={{ scale: 0.95 }}
                     >
-                      Get Started as {role.title}
-                      <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
-                    </Link>
-                  </motion.div>
+                      <Link
+                        to="/register"
+                        className="inline-flex items-center justify-center w-full py-3 px-4 rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium border border-gray-200 dark:border-gray-700 transition-colors group/btn"
+                      >
+                        Get Started as {role.title}
+                        <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
+                      </Link>
+                    </motion.div>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -1545,7 +1550,7 @@ function ContactSection() {
     },
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -1556,7 +1561,7 @@ function ContactSection() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,
@@ -1610,7 +1615,7 @@ function ContactSection() {
               <motion.span
                 initial={{ backgroundPosition: "200% center" }}
                 animate={{ backgroundPosition: "-200% center" }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 3, repeat: Infinity, ease: EASE_LINEAR }}
                 className="bg-gradient-to-r from-primary-500 via-cyan-500 to-primary-500 bg-[length:200%_auto] bg-clip-text text-transparent"
               >
                 Your Hiring?
@@ -1817,7 +1822,7 @@ function ContactSection() {
                         <span className="flex items-center justify-center gap-2">
                           <motion.svg
                             animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            transition={{ duration: 1, repeat: Infinity, ease: EASE_LINEAR }}
                             className="h-5 w-5 text-white"
                             fill="none"
                             viewBox="0 0 24 24"
@@ -1882,7 +1887,7 @@ function CTASection() {
             transition={{
               duration: 10,
               repeat: Infinity,
-              ease: "linear"
+              ease: EASE_LINEAR
             }}
             style={{
               backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)`,
@@ -1903,7 +1908,7 @@ function CTASection() {
                 <motion.span
                   initial={{ backgroundPosition: "200% center" }}
                   animate={{ backgroundPosition: "-200% center" }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                  transition={{ duration: 3, repeat: Infinity, ease: EASE_LINEAR }}
                   className="bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-[length:200%_auto] bg-clip-text text-transparent"
                 >
                   Pricing Plan
@@ -1940,7 +1945,7 @@ function CTASection() {
                   >
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      transition={{ duration: 20, repeat: Infinity, ease: EASE_LINEAR }}
                     >
                       <Rocket className="h-5 w-5" />
                     </motion.div>
