@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../context/AuthContext'
 import { getAdminDashboard, getEmployerDashboard, getJobSeekerDashboard } from '../services/dashboard'
 import { getMyApplications } from '../services/applications'
+import { getActiveTemplates } from '../services/cvTemplates'
 import { Spinner } from '../components/Spinner'
 
 function StatCard({ title, value, subtitle }: { title: string; value: string | number; subtitle?: string }) {
@@ -40,6 +41,7 @@ function SparkLine({ points }: { points: number[] }) {
       const y = pad + (h - pad * 2) * (1 - (v - min) / range)
       return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
     })
+
     .join(' ')
 
   return (
@@ -134,6 +136,12 @@ export function DashboardPage() {
   const myApps = useQuery({
     queryKey: ['my-applications'],
     queryFn: getMyApplications,
+    enabled: user?.role === 'JOB_SEEKER',
+  })
+
+  const templatesQuery = useQuery({
+    queryKey: ['cv-templates', 'active'],
+    queryFn: getActiveTemplates,
     enabled: user?.role === 'JOB_SEEKER',
   })
 
@@ -408,6 +416,44 @@ export function DashboardPage() {
                 </div>
               ) : (
                 <div className="text-gray-600">No applications yet.</div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {user?.role === 'JOB_SEEKER' && (
+          <div className="mt-8">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <h2 className="text-xl">CV Templates</h2>
+              <a className="btn btn-secondary" href="/cvs?tab=template">
+                Open CV Builder
+              </a>
+            </div>
+
+            <div className="mt-4">
+              {templatesQuery.isLoading ? (
+                <Spinner label="Loading templates…" />
+              ) : templatesQuery.isError ? (
+                <div className="text-rose-700">Failed to load templates.</div>
+              ) : templatesQuery.data?.length ? (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {templatesQuery.data.map((t) => (
+                    <div key={t.id} className="card">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <div className="font-semibold">{t.name}</div>
+                          <div className="mt-1 text-sm text-gray-600">{t.description || 'CV template'}</div>
+                          <div className="mt-2 text-xs text-gray-500">{t.category || 'General'}</div>
+                        </div>
+                        <a className="btn btn-primary" href={`/cvs?tab=template&templateId=${t.id}`}>
+                          Use
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-600">No templates available yet.</div>
               )}
             </div>
           </div>

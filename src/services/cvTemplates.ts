@@ -1,4 +1,5 @@
 import { api } from './api'
+import type { Cv } from './cvs'
 
 export type CvTemplate = {
   id: number
@@ -43,4 +44,9 @@ export async function deleteTemplate(id: number): Promise<void> {
 
 export async function toggleTemplateStatus(id: number, isActive: boolean): Promise<void> {
   await api.patch(`/api/cv-templates/${id}/status`, null, { params: { isActive } })
+}
+
+export async function buildCvFromTemplate(templateId: number, payload: Partial<Cv>): Promise<Cv> {
+  const { data } = await api.post<Cv>(`/api/cv-templates/${templateId}/build-cv`, payload)
+  return data
 }

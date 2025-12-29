@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useSearchParams } from 'react-router-dom'
 import { Spinner } from '../components/Spinner'
 import { Toast } from '../components/Toast'
 import {
@@ -12,6 +13,7 @@ import {
   uploadCv,
   type Cv,
 } from '../services/cvs'
+import { buildCvFromTemplate, getActiveTemplates } from '../services/cvTemplates'
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
@@ -28,14 +30,33 @@ export function CvsPage() {
   const qc = useQueryClient()
   const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null)
 
-  const [tab, setTab] = useState<'upload' | 'build'>('upload')
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const [tab, setTab] = useState<'upload' | 'build' | 'template'>('upload')
   const [file, setFile] = useState<File | null>(null)
   const [cvName, setCvName] = useState('')
   const [isDefault, setIsDefault] = useState(false)
 
   const [builder, setBuilder] = useState<Partial<Cv>>({ cvName: '', fullName: '', email: '', phone: '' })
 
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null)
+
   const q = useQuery({ queryKey: ['cvs'], queryFn: getMyCvs })
+
+  const templatesQ = useQuery({ queryKey: ['cv-templates', 'active'], queryFn: getActiveTemplates })
+
+  useEffect(() => {
+    const t = searchParams.get('tab')
+    if (t === 'upload' || t === 'build' || t === 'template') {
+      setTab(t)
+    }
+    const tid = searchParams.get('templateId')
+    if (tid) {
+      const n = Number(tid)
+      if (!Number.isNaN(n)) setSelectedTemplateId(n)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const uploadMut = useMutation({
     mutationFn: async () => {
@@ -61,6 +82,25 @@ export function CvsPage() {
       setIsDefault(false)
     },
     onError: (e: any) => setToast({ type: 'error', message: e?.response?.data?.error || 'Build failed' }),
+  })
+
+  const buildFromTemplateMut = useMutation({
+    mutationFn: async () => {
+      if (!selectedTemplateId) throw new Error('Select a template')
+      return buildCvFromTemplate(selectedTemplateId, { ...builder, isDefault })
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ['cvs'] })
+      setToast({ type: 'success', message: 'CV generated from template' })
+      setTab('build')
+      setSearchParams((p) => {
+        const next = new URLSearchParams(p)
+        next.set('tab', 'build')
+        next.delete('templateId')
+        return next
+      })
+    },
+    onError: (e: any) => setToast({ type: 'error', message: e?.response?.data?.error || e?.message || 'Template build failed' }),
   })
 
   const actions = useMemo(
@@ -99,11 +139,44 @@ export function CvsPage() {
           <div className="lg:col-span-2">
             <div className="card">
               <div className="flex gap-2">
-                <button className={`btn ${tab === 'upload' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setTab('upload')}>
+                <button
+                  className={`btn ${tab === 'upload' ? 'btn-primary' : 'btn-secondary'}`}
+                  onClick={() => {
+                    setTab('upload')
+                    setSearchParams((p) => {
+                      const next = new URLSearchParams(p)
+                      next.set('tab', 'upload')
+                      return next
+                    })
+                  }}
+                >
                   Upload CV
                 </button>
-                <button className={`btn ${tab === 'build' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setTab('build')}>
+                <button
+                  className={`btn ${tab === 'build' ? 'btn-primary' : 'btn-secondary'}`}
+                  onClick={() => {
+                    setTab('build')
+                    setSearchParams((p) => {
+                      const next = new URLSearchParams(p)
+                      next.set('tab', 'build')
+                      return next
+                    })
+                  }}
+                >
                   Build CV
+                </button>
+                <button
+                  className={`btn ${tab === 'template' ? 'btn-primary' : 'btn-secondary'}`}
+                  onClick={() => {
+                    setTab('template')
+                    setSearchParams((p) => {
+                      const next = new URLSearchParams(p)
+                      next.set('tab', 'template')
+                      return next
+                    })
+                  }}
+                >
+                  Templates
                 </button>
               </div>
 
@@ -125,7 +198,7 @@ export function CvsPage() {
                     {uploadMut.isPending ? 'Uploading…' : 'Upload'}
                   </button>
                 </div>
-              ) : (
+              ) : tab === 'build' ? (
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
                     <label className="text-sm font-medium text-gray-700">CV name</label>
@@ -154,6 +227,68 @@ export function CvsPage() {
                   <div className="sm:col-span-2">
                     <button className="btn btn-primary w-full" disabled={buildMut.isPending} onClick={() => buildMut.mutate()}>
                       {buildMut.isPending ? 'Creating…' : 'Create CV'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <label className="text-sm font-medium text-gray-700">Choose template</label>
+                    {templatesQ.isLoading ? (
+                      <div className="mt-2">
+                        <Spinner label="Loading templates…" />
+                      </div>
+                    ) : templatesQ.isError ? (
+                      <div className="mt-2 text-rose-700">Failed to load templates.</div>
+                    ) : (
+                      <select
+                        className="input mt-1"
+                        value={selectedTemplateId ?? ''}
+                        onChange={(e) => setSelectedTemplateId(e.target.value ? Number(e.target.value) : null)}
+                      >
+                        <option value="">Select a template</option>
+                        {(templatesQ.data ?? []).map((t) => (
+                          <option key={t.id} value={t.id}>
+                            {t.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="text-sm font-medium text-gray-700">CV name</label>
+                    <input className="input mt-1" value={builder.cvName ?? ''} onChange={(e) => setBuilder((p) => ({ ...p, cvName: e.target.value }))} />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Full name</label>
+                    <input className="input mt-1" value={builder.fullName ?? ''} onChange={(e) => setBuilder((p) => ({ ...p, fullName: e.target.value }))} />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Email</label>
+                    <input className="input mt-1" value={builder.email ?? ''} onChange={(e) => setBuilder((p) => ({ ...p, email: e.target.value }))} />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Phone</label>
+                    <input className="input mt-1" value={builder.phone ?? ''} onChange={(e) => setBuilder((p) => ({ ...p, phone: e.target.value }))} />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Skills</label>
+                    <input className="input mt-1" value={builder.skills ?? ''} onChange={(e) => setBuilder((p) => ({ ...p, skills: e.target.value }))} />
+                  </div>
+
+                  <label className="flex items-center gap-2 text-sm text-gray-700 sm:col-span-2">
+                    <input type="checkbox" checked={isDefault} onChange={(e) => setIsDefault(e.target.checked)} />
+                    Set as default
+                  </label>
+
+                  <div className="sm:col-span-2">
+                    <button className="btn btn-primary w-full" disabled={buildFromTemplateMut.isPending} onClick={() => buildFromTemplateMut.mutate()}>
+                      {buildFromTemplateMut.isPending ? 'Generating…' : 'Generate from template'}
                     </button>
                   </div>
                 </div>

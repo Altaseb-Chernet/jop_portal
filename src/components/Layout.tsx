@@ -7,6 +7,7 @@ import { TopNavbar } from './TopNavbar'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../hooks/useTheme'
 import { Footer } from './Footer'
+import Chatbot from './Chatbot'
 
 export function Layout() {
   const { isAuthenticated } = useAuth()
@@ -22,14 +23,11 @@ export function Layout() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
         <header className="fixed top-0 left-0 right-0 z-30 border-b border-gray-200/70 dark:border-gray-800 bg-white/90 dark:bg-gray-950/80 backdrop-blur">
+          
           <div className="container h-16 flex items-center justify-between">
             <div className="flex-shrink-0 pl-2 md:pl-0">
               <Link to="/" className="flex items-center gap-2" onClick={() => setPublicMenuOpen(false)}>
-                <img 
-                  src="/ethiocareer.png"
-                  alt="EthioCareer Logo" 
-                  className="h-10 w-auto"
-                />
+               
                 <span className="text-2xl font-bold text-primary-700 dark:text-primary-300 hidden md:block">
                   EthioCareer
                 </span>
@@ -150,6 +148,7 @@ export function Layout() {
           <Outlet />
         </main>
         <Footer />
+        <Chatbot />
       </div>
     )
   }
